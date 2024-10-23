@@ -28,8 +28,9 @@ public class Product {
     @Column(name = "stock_quantity")
     private Integer stockQuantity;
 
-    @Column(name = "category")
-    private String category;
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @Column(name = "created_at")
     @CreatedDate
@@ -39,7 +40,10 @@ public class Product {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    public void validateProduct(String name, String description, BigDecimal price, Integer stockQuantity, String category) {
+    public Product() {
+    }
+
+    public void validateProduct(String name, String description, BigDecimal price, Integer stockQuantity, Category category) {
         setName(name);
         setPrice(price);
         setStockQuantity(stockQuantity);
@@ -75,8 +79,8 @@ public class Product {
         this.stockQuantity = stockQuantity;
     }
 
-    private void setCategory(String category) {
-        if (category == null || category.isEmpty()) {
+    private void setCategory(Category category) {
+        if (category == null) {
             throw new IllegalArgumentException("Category is required");
         }
         this.category = category;

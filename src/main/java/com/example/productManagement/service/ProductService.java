@@ -1,6 +1,8 @@
 package com.example.productManagement.service;
+import com.example.productManagement.entity.Category;
 import com.example.productManagement.entity.Product;
 import com.example.productManagement.interfaces.ProductOperations;
+import com.example.productManagement.repository.CategoryRepository;
 import com.example.productManagement.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,13 +19,22 @@ public class ProductService implements ProductOperations {
     @Autowired
     ProductRepository productRepository;
 
+    @Autowired
+    CategoryRepository categoryRepository;
+
     public Product createProduct( Product product) {
 
         if (productRepository.findByName(product.getName().trim()).isPresent()) {
             throw new IllegalArgumentException("Product name already exists");
         }
 
-        product.validateProduct(product.getName(), product.getDescription(), product.getPrice(), product.getStockQuantity(), product.getCategory());
+        long categoryId = 0;
+        if (product.getCategory() != null && product.getCategory().getId() != null) {
+            categoryId =  product.getCategory().getId();
+        }
+
+        Optional<Category> category = categoryRepository.findById(categoryId);
+        product.validateProduct(product.getName(), product.getDescription(), product.getPrice(), product.getStockQuantity(), category.orElseGet(() -> null));
         return productRepository.save(product);
     }
 
@@ -38,12 +49,18 @@ public class ProductService implements ProductOperations {
     public Product updateProduct(Long id, Product updatedProduct) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+        long categoryId = 0;
+        if (updatedProduct.getCategory() != null && updatedProduct.getCategory().getId() != null) {
+            categoryId =  updatedProduct.getCategory().getId();
+        }
+        Optional<Category> category = categoryRepository.findById(categoryId);
+
         product.validateProduct(
                 updatedProduct.getName(),
                 updatedProduct.getDescription(),
                 updatedProduct.getPrice(),
                 updatedProduct.getStockQuantity(),
-                updatedProduct.getCategory()
+                category.orElseGet(() -> null)
         );
         return productRepository.save(product);
     }
