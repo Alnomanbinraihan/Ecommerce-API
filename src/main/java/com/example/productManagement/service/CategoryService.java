@@ -1,4 +1,5 @@
 package com.example.productManagement.service;
+
 import com.example.productManagement.entity.Category;
 import com.example.productManagement.interfaces.CategoryOperations;
 import com.example.productManagement.repository.CategoryRepository;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +29,12 @@ public class CategoryService implements CategoryOperations {
     }
 
     public Optional<Category> getCategoryById(Long id) {
-        return categoryRepository.findById(id);
+        Optional<Category> category = categoryRepository.findById(id);
+        if (category.isPresent()) {
+            return category;
+        } else {
+            throw new IllegalArgumentException("Category not found");
+        }
     }
 
     public Category updateCategory(Long id, String name) {
@@ -45,7 +52,7 @@ public class CategoryService implements CategoryOperations {
     public Page<Category> getPaginatedAndSortedCategory(int page, int size, boolean isAsc) {
 
         Pageable pageable;
-        if(isAsc) {
+        if (isAsc) {
             pageable = PageRequest.of(page, size, Sort.by("id").ascending());
         } else {
             pageable = PageRequest.of(page, size, Sort.by("id").descending());

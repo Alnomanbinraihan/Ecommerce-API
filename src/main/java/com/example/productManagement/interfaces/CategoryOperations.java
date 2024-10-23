@@ -9,9 +9,14 @@ import java.util.Optional;
 public interface CategoryOperations {
 
     Category createCategory(String name);
+
     List<Category> getAllCategory();
+
     Optional<Category> getCategoryById(Long id);
+
     Category updateCategory(Long id, String name);
+
     String deleteCategory(Long id);
+
     Page<Category> getPaginatedAndSortedCategory(int page, int size, boolean isAsc);
 }

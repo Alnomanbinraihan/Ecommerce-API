@@ -1,4 +1,5 @@
 package com.example.productManagement.service;
+
 import com.example.productManagement.entity.Category;
 import com.example.productManagement.entity.Discount;
 import com.example.productManagement.entity.Product;
@@ -25,7 +26,7 @@ public class ProductService implements ProductOperations {
     @Autowired
     CategoryRepository categoryRepository;
 
-    public Product createProduct( Product product) {
+    public Product createProduct(Product product) {
 
         if (productRepository.findByName(product.getName().trim()).isPresent()) {
             throw new IllegalArgumentException("Product name already exists");
@@ -33,7 +34,7 @@ public class ProductService implements ProductOperations {
 
         long categoryId = 0;
         if (product.getCategory() != null && product.getCategory().getId() != null) {
-            categoryId =  product.getCategory().getId();
+            categoryId = product.getCategory().getId();
         }
 
         Optional<Category> category = categoryRepository.findById(categoryId);
@@ -53,9 +54,12 @@ public class ProductService implements ProductOperations {
     public Product updateProduct(Long id, Product updatedProduct) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+        if (productRepository.findByName(updatedProduct.getName().trim()).isPresent()) {
+            throw new IllegalArgumentException("Product name already exists");
+        }
         long categoryId = 0;
         if (updatedProduct.getCategory() != null && updatedProduct.getCategory().getId() != null) {
-            categoryId =  updatedProduct.getCategory().getId();
+            categoryId = updatedProduct.getCategory().getId();
         }
         Optional<Category> category = categoryRepository.findById(categoryId);
 
@@ -65,7 +69,7 @@ public class ProductService implements ProductOperations {
                 updatedProduct.getPrice(),
                 updatedProduct.getStockQuantity(),
                 category.orElseGet(() -> null),
-                new Discount(updatedProduct.getDiscount().getDiscountPercent())
+                new Discount(updatedProduct.getDiscount() != null ? updatedProduct.getDiscount().getDiscountPercent() : null)
         );
         return productRepository.save(product);
     }
@@ -87,7 +91,7 @@ public class ProductService implements ProductOperations {
     public Page<Product> getPaginatedAndSortedProducts(int page, int size, boolean isAsc) {
 
         Pageable pageable;
-        if(isAsc) {
+        if (isAsc) {
             pageable = PageRequest.of(page, size, Sort.by("createdAt").ascending());
         } else {
             pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());

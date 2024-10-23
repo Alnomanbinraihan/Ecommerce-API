@@ -1,7 +1,9 @@
 package com.example.productManagement.entity;
+
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -23,7 +25,7 @@ public class Discount {
     }
 
     public BigDecimal getDiscountedPrice(BigDecimal price) {
-        BigDecimal percentage = discountPercent != null? discountPercent : new BigDecimal("0");
+        BigDecimal percentage = discountPercent != null ? discountPercent : new BigDecimal("0");
         return price.subtract(price.multiply(percentage).divide(new BigDecimal("100")));
     }
 
