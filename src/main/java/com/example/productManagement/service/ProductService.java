@@ -1,5 +1,6 @@
 package com.example.productManagement.service;
 import com.example.productManagement.entity.Category;
+import com.example.productManagement.entity.Discount;
 import com.example.productManagement.entity.Product;
 import com.example.productManagement.interfaces.ProductOperations;
 import com.example.productManagement.repository.CategoryRepository;
@@ -10,6 +11,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,7 +37,8 @@ public class ProductService implements ProductOperations {
         }
 
         Optional<Category> category = categoryRepository.findById(categoryId);
-        product.validateProduct(product.getName(), product.getDescription(), product.getPrice(), product.getStockQuantity(), category.orElseGet(() -> null));
+        product.validateProduct(product.getName(), product.getDescription(), product.getPrice(), product.getStockQuantity(), category.orElseGet(() -> null), new Discount(product.getDiscount() != null ? product.getDiscount().getDiscountPercent() : null)
+        );
         return productRepository.save(product);
     }
 
@@ -60,7 +64,8 @@ public class ProductService implements ProductOperations {
                 updatedProduct.getDescription(),
                 updatedProduct.getPrice(),
                 updatedProduct.getStockQuantity(),
-                category.orElseGet(() -> null)
+                category.orElseGet(() -> null),
+                new Discount(updatedProduct.getDiscount().getDiscountPercent())
         );
         return productRepository.save(product);
     }
@@ -88,5 +93,16 @@ public class ProductService implements ProductOperations {
             pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         }
         return productRepository.findAll(pageable);
+    }
+
+    public BigDecimal getDiscountPriceByProductId(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+
+        if (product.getDiscount() != null && product.getDiscount().getDiscountPercent() != null) {
+            return product.getDiscount().getDiscountedPrice(product.getPrice());
+        }
+
+        return product.getPrice();
     }
 }

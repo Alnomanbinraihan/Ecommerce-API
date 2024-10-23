@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,5 +54,10 @@ public class ProductController {
     @PatchMapping("/{id}/update-stock")
     public ResponseEntity<String> updateStock(@PathVariable Long id, @RequestParam Integer stockQuantity) {        ;
         return ResponseEntity.ok(productService.updateStockQuantity(id, stockQuantity));
+    }
+
+    @GetMapping("/discount-price/{id}")
+    public ResponseEntity<BigDecimal> getDiscountPrice(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.getDiscountPriceByProductId(id));
     }
 }

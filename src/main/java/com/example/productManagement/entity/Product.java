@@ -32,6 +32,9 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @Embedded
+    private Discount discount;
+
     @Column(name = "created_at")
     @CreatedDate
     private LocalDateTime createdAt;
@@ -43,11 +46,12 @@ public class Product {
     public Product() {
     }
 
-    public void validateProduct(String name, String description, BigDecimal price, Integer stockQuantity, Category category) {
+    public void validateProduct(String name, String description, BigDecimal price, Integer stockQuantity, Category category, Discount discount) {
         setName(name);
         setPrice(price);
         setStockQuantity(stockQuantity);
         setCategory(category);
+        setDiscount(discount);
         this.description = description;
     }
 
@@ -84,5 +88,9 @@ public class Product {
             throw new IllegalArgumentException("Category is required");
         }
         this.category = category;
+    }
+
+    private void setDiscount(Discount discount) {
+        this.discount = discount;
     }
 }
