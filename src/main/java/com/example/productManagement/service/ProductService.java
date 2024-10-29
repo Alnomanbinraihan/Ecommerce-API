@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -54,7 +55,8 @@ public class ProductService implements ProductOperations {
     public Product updateProduct(Long id, Product updatedProduct) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found"));
-        if (productRepository.findByName(updatedProduct.getName().trim()).isPresent()) {
+        Optional<Product> duplicateNameProduct = productRepository.findByName(updatedProduct.getName().trim());
+        if (duplicateNameProduct.isPresent() && !Objects.equals(duplicateNameProduct.get().getId(), product.getId())) {
             throw new IllegalArgumentException("Product name already exists");
         }
         long categoryId = 0;
